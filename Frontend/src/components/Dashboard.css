@@ -1,17 +1,26 @@
+:root {
+  --tomato: #F96741;
+  --misty-rose: #FEE9E3;
+  --white: #fff;
+  --pumpkin: #FB7F34;
+  --tomato-2: #FF6347;
+}
+
+/* Main dashboard background and text */
 .dashboard {
   min-height: 100vh;
   padding: 20px;
-  background: linear-gradient(to bottom right, #e0f0ff, #ffffff);
   font-family: Arial, sans-serif;
   text-align: center;
 }
 
 .dashboard h1 {
   font-size: 32px;
-  color: #1f2937;
+  color: var(--tomato);
   margin-bottom: 30px;
 }
 
+/* Filters bar */
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -25,16 +34,21 @@
   padding: 10px 15px;
   font-size: 14px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--pumpkin);
   cursor: pointer;
+  background: var(--white);
+  color: var(--pumpkin);
+  transition: border-color 0.3s, background 0.3s;
 }
 
 .filters input:focus,
 .filters select:focus {
   outline: none;
-  border-color: #3b82f6;
+  border-color: var(--tomato);
+  background: var(--white);
 }
 
+/* Plans layout */
 .plans {
   display: flex;
   flex-wrap: wrap;
@@ -42,54 +56,57 @@
   gap: 20px;
 }
 
+/* Plan Card */
 .plan-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
+  background: var(--white);
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--pumpkin);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.04);
   padding: 25px 20px;
   width: 300px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+  transition: transform 0.3s, box-shadow 0.3s, border 0.3s;
   cursor: default;
 }
-
 .plan-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-  border: 1px solid #60a5fa;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.10);
+  border: 1.5px solid var(--pumpkin);
 }
 
 .plan-card h2 {
   font-size: 22px;
-  color: #111827;
+  color: var(--tomato);
   font-weight: 600;
   margin-bottom: 12px;
 }
-
 .plan-card .price {
   font-size: 30px;
   font-weight: bold;
-  color: #2563eb;
+  color: var(--pumpkin);
   margin-bottom: 8px;
 }
-
 .plan-card .discount {
   display: inline-block;
-  background: linear-gradient(to right, #bbf7d0, #86efac);
-  color: #065f46;
+  background: var(--white);
+  color: var(--pumpkin);
   padding: 4px 10px;
   border-radius: 12px;
   font-size: 13px;
   font-weight: 600;
+  border: 1px solid var(--pumpkin);
   margin-bottom: 12px;
   cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.plan-card .discount:hover {
+  background: var(--pumpkin);
+  color: var(--white);
 }
 
 .plan-card .speed {
   font-size: 15px;
   font-weight: 500;
-  color: #374151;
+  color: var(--tomato-2);
   margin-bottom: 12px;
 }
 
@@ -101,38 +118,46 @@
   background: none;
   border: none;
   font-weight: bold;
-  color: #2563eb;
+  color: var(--pumpkin);
   cursor: pointer;
   padding: 6px 0;
   font-size: 14px;
+  transition: color 0.2s;
 }
-
 .details-dropdown button:hover {
-  color: #1d4ed8;
+  color: var(--tomato);
 }
 
 .details-dropdown .details {
   font-size: 14px;
-  color: #374151;
+  color: var(--tomato-2);
   margin-top: 8px;
   line-height: 1.5;
 }
 
-.subscribe {
+/* Pumpkin Button */
+.subscribe,
+button,
+input[type="button"],
+input[type="submit"] {
   width: 100%;
   padding: 12px;
   margin-top: 18px;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(to right, #2563eb, #4f46e5);
-  color: white;
+  background: var(--pumpkin);
+  color: var(--white);
   font-weight: 600;
   font-size: 15px;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
+  transition: background 0.3s, color 0.2s, transform 0.2s;
 }
 
-.subscribe:hover {
-  background: linear-gradient(to right, #1e40af, #4338ca);
+.subscribe:hover,
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+  background: var(--tomato);
+  color: var(--white);
   transform: scale(1.03);
 }
