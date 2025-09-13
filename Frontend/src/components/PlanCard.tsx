@@ -25,7 +25,7 @@ export function PlanCard({ plan, isRecommended = false }: PlanCardProps) {
 
     try {
    
-      const prompt = `You are a helpful sales assistant. Briefly explain in a friendly tone why the '${plan.name}' broadband plan, which costs $${plan.price}/month with ${plan.dataQuota}GB of data, would be a great choice for a potential customer. Keep it to 2 sentences.`;
+      const prompt = `You are a helpful assistant. Briefly explain in a friendly tone why the '${plan.name}' broadband plan, which costs $${plan.price}/month with ${plan.dataQuota}GB of data, would be a great choice for a potential customer. Keep it to 2 sentences.`;
 
     
       const response = await fetch('http://localhost:8000/api/generateSummary', {
