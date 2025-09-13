@@ -1,3 +1,9 @@
+import { useState } from 'react';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+
+const API_KEY = 'AIzaSyDJmQg3VmsHdNdTWT5GSTAZ6gClPJguaac';
+
 
 interface Plan {
   id: string;
@@ -13,6 +19,33 @@ interface PlanCardProps {
 }
 
 export function PlanCard({ plan, isRecommended = false }: PlanCardProps) {
+ 
+  const [aiSummary, setAiSummary] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+
+
+  const handleGenerateSummary = async () => {
+    setIsGenerating(true);
+    setAiSummary(''); 
+
+    try {
+      const genAI = new GoogleGenerativeAI(API_KEY);
+      const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+      const prompt = `You are a helpful sales assistant. Briefly explain in a friendly tone why the '${plan.name}' broadband plan, which costs $${plan.price}/month with ${plan.dataQuota}GB of data, would be a great choice for a potential customer. Keep it to 2 sentences.`;
+
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      setAiSummary(response.text());
+
+    } catch (error) {
+      console.error("Error generating summary:", error);
+      setAiSummary('Sorry, we couldn\'t generate a summary right now.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className={`
       border rounded-xl p-6 flex flex-col transition-all duration-300
@@ -34,16 +67,31 @@ export function PlanCard({ plan, isRecommended = false }: PlanCardProps) {
         <span className="text-gray-500">/month</span>
       </div>
 
-      <ul className="space-y-3 text-gray-600 mb-8">
+      <ul className="space-y-3 text-gray-600 mb-6">
         <li className="flex items-center">
           <span className="text-blue-500 mr-2">✔</span>
           {plan.dataQuota} GB Monthly Data
         </li>
-        {/* Add more features here */}
       </ul>
-      
+
+     
+      <div className="border-t border-gray-200 pt-4 mt-4 text-center">
+        {aiSummary && <p className="text-sm text-gray-700 p-3 bg-slate-100 rounded-md">{aiSummary}</p>}
+        
+        {isGenerating && <p className="text-sm text-blue-600">Generating summary...</p>}
+
+        {!aiSummary && !isGenerating && (
+          <button 
+            onClick={handleGenerateSummary}
+            className="text-sm font-semibold text-blue-600 hover:text-blue-800"
+          >
+            Personalize with AI ✨
+          </button>
+        )}
+      </div>
+
       <button className={`
-        w-full mt-auto font-semibold py-3 rounded-lg
+        w-full mt-6 font-semibold py-3 rounded-lg
         ${isRecommended 
           ? 'bg-blue-600 text-white hover:bg-blue-700' 
           : 'bg-blue-50 text-blue-700 hover:bg-blue-100'}
