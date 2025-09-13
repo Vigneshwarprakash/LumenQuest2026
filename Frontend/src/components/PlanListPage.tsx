@@ -15,8 +15,6 @@ const GET_ALL_PLANS = gql`
     }
   }
 `;
-
-// A mock recommended plan ID from the AI engine
 const recommendedPlanId = 'uuid-for-fibernet-pro'; 
 
 export function PlanListPage() {
@@ -24,8 +22,6 @@ export function PlanListPage() {
 
   if (loading) return <Spinner />;
   if (error) return <p className="text-center text-red-500">Error: {error.message}</p>;
-
-  // Filter out the recommended plan to display it separately
   const recommendedPlan = data.getAllPlans.find(plan => plan.id === recommendedPlanId);
   const otherPlans = data.getAllPlans.filter(plan => plan.id !== recommendedPlanId);
 
