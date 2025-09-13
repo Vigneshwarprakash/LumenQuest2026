@@ -1,10 +1,6 @@
 import { useState } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
-
-const API_KEY = 'AIzaSyDJmQg3VmsHdNdTWT5GSTAZ6gClPJguaac';
-
-
+// Define the TypeScript type for the plan prop
 interface Plan {
   id: string;
   name: string;
@@ -19,27 +15,36 @@ interface PlanCardProps {
 }
 
 export function PlanCard({ plan, isRecommended = false }: PlanCardProps) {
- 
   const [aiSummary, setAiSummary] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-
+  // This function now securely calls YOUR backend server
   const handleGenerateSummary = async () => {
     setIsGenerating(true);
-    setAiSummary(''); 
+    setAiSummary('');
 
     try {
-      const genAI = new GoogleGenerativeAI(API_KEY);
-      const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-
+   
       const prompt = `You are a helpful sales assistant. Briefly explain in a friendly tone why the '${plan.name}' broadband plan, which costs $${plan.price}/month with ${plan.dataQuota}GB of data, would be a great choice for a potential customer. Keep it to 2 sentences.`;
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      setAiSummary(response.text());
+    
+      const response = await fetch('http://localhost:8000/api/generateSummary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ prompt }), // Send the prompt in the request body
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      setAiSummary(data.summary);
 
     } catch (error) {
-      console.error("Error generating summary:", error);
+      console.error("Error fetching summary from backend:", error);
       setAiSummary('Sorry, we couldn\'t generate a summary right now.');
     } finally {
       setIsGenerating(false);
@@ -73,13 +78,10 @@ export function PlanCard({ plan, isRecommended = false }: PlanCardProps) {
           {plan.dataQuota} GB Monthly Data
         </li>
       </ul>
-
-     
+      
       <div className="border-t border-gray-200 pt-4 mt-4 text-center">
         {aiSummary && <p className="text-sm text-gray-700 p-3 bg-slate-100 rounded-md">{aiSummary}</p>}
-        
         {isGenerating && <p className="text-sm text-blue-600">Generating summary...</p>}
-
         {!aiSummary && !isGenerating && (
           <button 
             onClick={handleGenerateSummary}
