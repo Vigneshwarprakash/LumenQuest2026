@@ -1,0 +1,154 @@
+:root {
+  --tomato: #F96741;
+  --misty-rose: #FEE9E3;
+  --atomic-tangerine: #FBA27E;
+  --pumpkin: #FB7F34;
+  --tomato-2: #F96444;
+  --white: #ffffff;
+  --dark: #2c2c2c;
+  --light-gray: #f5f5f5;
+  --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  --transition: all 0.3s ease-in-out;
+}
+
+/* Page Container */
+.manage-plans {
+  padding: 40px;
+  background: linear-gradient(135deg, var(--misty-rose), var(--white));
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  animation: fadeIn 0.6s ease;
+}
+
+/* Heading */
+.manage-plans h2 {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--tomato);
+  margin-bottom: 30px;
+  letter-spacing: 1px;
+  position: relative;
+}
+
+.manage-plans h2::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 4px;
+  background: var(--tomato);
+  margin: 10px auto 0;
+  border-radius: 4px;
+}
+
+/* Form Section */
+.form-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  background: var(--white);
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  margin-bottom: 35px;
+  transition: var(--transition);
+}
+
+.form-section:hover {
+  transform: translateY(-2px);
+}
+
+.form-section input {
+  flex: 1 1 45%;
+  padding: 12px 14px;
+  border: 2px solid var(--atomic-tangerine);
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: var(--transition);
+}
+
+.form-section input:focus {
+  border-color: var(--pumpkin);
+  box-shadow: 0 0 8px rgba(251, 127, 52, 0.3);
+  background: #fffaf6;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn.add {
+  background: var(--tomato);
+  color: var(--white);
+}
+
+.btn.save {
+  background: var(--pumpkin);
+  color: var(--white);
+}
+
+.btn.edit {
+  background: var(--atomic-tangerine);
+  color: var(--dark);
+}
+
+.btn.delete {
+  background: var(--tomato-2);
+  color: var(--white);
+}
+
+.btn:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+/* Plans Table */
+.plans-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+}
+
+.plans-table th {
+  background: var(--tomato);
+  color: var(--white);
+  padding: 14px;
+  text-align: left;
+  border-radius: 8px 8px 0 0;
+  font-size: 15px;
+}
+
+.plans-table td {
+  background: var(--white);
+  padding: 16px;
+  border: none;
+  font-size: 14px;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.plans-table tr {
+  border-radius: 12px;
+  transition: var(--transition);
+}
+
+.plans-table tr:hover td {
+  box-shadow: var(--card-shadow);
+  transform: scale(1.01);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
