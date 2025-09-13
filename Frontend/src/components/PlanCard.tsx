@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-// Define the TypeScript type for the plan prop
+
 interface Plan {
   id: string;
   name: string;
