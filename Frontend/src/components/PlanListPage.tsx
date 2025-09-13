@@ -2,7 +2,7 @@ import { gql, useQuery } from '@apollo/client';
 import { PlanCard } from './PlanCard';
 import { RecommendedPlan } from './RecommendedPlan';
 import { Spinner } from './Spinner';
-
+import { Plan } from '../types'; // <-- UPDATED: Import the shared Plan type
 
 const GET_ALL_PLANS = gql`
   query GetAllPlans {
@@ -15,15 +15,25 @@ const GET_ALL_PLANS = gql`
     }
   }
 `;
+
+// --- UPDATED: Define the expected shape of the API data ---
+interface PlanData {
+  getAllPlans: Plan[];
+}
+
 const recommendedPlanId = 'uuid-for-fibernet-pro'; 
 
 export function PlanListPage() {
-  const { loading, error, data } = useQuery(GET_ALL_PLANS);
+  // Add the PlanData type to useQuery for better type safety
+  const { loading, error, data } = useQuery<PlanData>(GET_ALL_PLANS);
 
   if (loading) return <Spinner />;
   if (error) return <p className="text-center text-red-500">Error: {error.message}</p>;
-  const recommendedPlan = data.getAllPlans.find(plan => plan.id === recommendedPlanId);
-  const otherPlans = data.getAllPlans.filter(plan => plan.id !== recommendedPlanId);
+
+  // Check if data and getAllPlans exist before trying to access them
+  const plans = data?.getAllPlans || [];
+  const recommendedPlan = plans.find(plan => plan.id === recommendedPlanId);
+  const otherPlans = plans.filter(plan => plan.id !== recommendedPlanId);
 
   return (
     <div>
@@ -34,13 +44,11 @@ export function PlanListPage() {
         Find the perfect broadband plan tailored to your needs.
       </p>
 
-      {/* AI Recommendation Section */}
       {recommendedPlan && <RecommendedPlan plan={recommendedPlan} />}
 
-      {/* Grid for other available plans */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
         {otherPlans.map((plan) => (
-          <PlanCard key={plan.id} plan={plan} />
+          <PlanCard key={plan.id} plan={plan} showAiFeature={true} />
         ))}
       </div>
     </div>
