@@ -2,7 +2,7 @@ import { gql, useQuery } from '@apollo/client';
 import { PlanCard } from './PlanCard';
 import { RecommendedPlan } from './RecommendedPlan';
 import { Spinner } from './Spinner';
-import { Plan } from '../types'; // <-- UPDATED: Import the shared Plan type
+import { Plan } from '../types';
 
 const GET_ALL_PLANS = gql`
   query GetAllPlans {
@@ -16,24 +16,20 @@ const GET_ALL_PLANS = gql`
   }
 `;
 
-// --- UPDATED: Define the expected shape of the API data ---
 interface PlanData {
   getAllPlans: Plan[];
 }
 
-const recommendedPlanId = 'uuid-for-fibernet-pro'; 
-
 export function PlanListPage() {
-  // Add the PlanData type to useQuery for better type safety
   const { loading, error, data } = useQuery<PlanData>(GET_ALL_PLANS);
 
   if (loading) return <Spinner />;
   if (error) return <p className="text-center text-red-500">Error: {error.message}</p>;
 
-  // Check if data and getAllPlans exist before trying to access them
   const plans = data?.getAllPlans || [];
-  const recommendedPlan = plans.find(plan => plan.id === recommendedPlanId);
-  const otherPlans = plans.filter(plan => plan.id !== recommendedPlanId);
+  
+  // We no longer need to find a specific recommended plan here
+  const otherPlans = plans;
 
   return (
     <div>
@@ -41,14 +37,16 @@ export function PlanListPage() {
         Choose Your Plan
       </h1>
       <p className="text-center text-gray-500 mb-10">
-        Find the perfect broadband plan tailored to your needs.
+        Or let us help you find the perfect fit!
       </p>
 
-      {recommendedPlan && <RecommendedPlan plan={recommendedPlan} />}
+      {/* --- UPDATED: Pass the entire 'plans' array to the chatbot --- */}
+      {plans.length > 0 && <RecommendedPlan allPlans={plans} />}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
         {otherPlans.map((plan) => (
-          <PlanCard key={plan.id} plan={plan} showAiFeature={true} />
+          // The AI feature is now in the chatbot, so we can set this to false
+          <PlanCard key={plan.id} plan={plan} showAiFeature={false} />
         ))}
       </div>
     </div>
