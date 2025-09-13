@@ -3,7 +3,7 @@ import { PlanCard } from './PlanCard';
 import { RecommendedPlan } from './RecommendedPlan';
 import { Spinner } from './Spinner';
 
-// GraphQL query to fetch all active plans
+
 const GET_ALL_PLANS = gql`
   query GetAllPlans {
     getAllPlans {
