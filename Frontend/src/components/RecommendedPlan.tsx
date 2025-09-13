@@ -1,66 +1,69 @@
 import { useState, useEffect, useRef } from 'react';
 import { Plan } from '../types';
 
-// Define the structure for a chat message
 interface Message {
   role: 'user' | 'model';
   text: string;
 }
 
-// Define the props for our component
 interface RecommendedPlanProps {
-  plan: Plan;
+  allPlans: Plan[]; // <-- UPDATED: Receives all plans
 }
 
-export function RecommendedPlan({ plan }: RecommendedPlanProps) {
-  // --- STATE MANAGEMENT FOR THE CHATBOT ---
-  // Store the history of the conversation
+// Define the conversation steps and button options
+const conversationSteps = {
+  initial: {
+    question: "To personalize your recommendation, how do you primarily use your internet?",
+    options: ["Streaming & Gaming", "Work from Home", "General Browsing"],
+  },
+};
+
+export function RecommendedPlan({ allPlans }: RecommendedPlanProps) {
   const [messages, setMessages] = useState<Message[]>([]);
-  // Store the user's current input
-  const [userInput, setUserInput] = useState('');
-  // Track loading state while waiting for the API
   const [isLoading, setIsLoading] = useState(false);
-  // Ref to auto-scroll to the latest message
+  // Track if the recommendation has been given to hide the buttons
+  const [recommendationGiven, setRecommendationGiven] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // --- INITIALIZE THE CHAT ---
-  // Set the initial greeting from the AI when the component loads
+  // Initialize the chat with the first question
   useEffect(() => {
     setMessages([
-      {
-        role: 'model',
-        text: `Hello! Based on your needs, I recommend the "${plan.name}" plan. What would you like to know about it?`,
-      },
+      { role: 'model', text: conversationSteps.initial.question },
     ]);
-  }, [plan]);
+  }, []);
 
-  // --- AUTO-SCROLLING ---
-  // Automatically scroll down when a new message is added
+  // Auto-scroll to the latest message
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // --- HANDLE FORM SUBMISSION ---
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!userInput.trim() || isLoading) return;
+  // Handle the user clicking an option button
+  const handleOptionClick = async (optionText: string) => {
+    if (isLoading) return;
 
-    // 1. Add user's message to the chat history
-    const userMessage: Message = { role: 'user', text: userInput };
-    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    // 1. Add user's choice to the chat
+    const userMessage: Message = { role: 'user', text: optionText };
+    setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
-    setUserInput('');
+    setRecommendationGiven(true); // Hide buttons after a choice is made
 
     try {
-      // 2. Create a contextual prompt for the Gemini API
+      // 2. Create a detailed prompt for the Gemini API
+      // We serialize the plan data so the AI can analyze it
+      const plansString = allPlans.map(p => 
+        `Plan Name: "${p.name}", Price: $${p.price}, Data: ${p.dataQuota}GB, Description: "${p.description}"`
+      ).join('; ');
+
       const prompt = `
-        You are a friendly and helpful chatbot for a broadband company. 
-        A user has been recommended the "${plan.name}" plan.
-        Plan Details:
-        - Price: $${plan.price}/month
-        - Data Quota: ${plan.dataQuota}GB
-        The user has the following question: "${userInput}"
-        Please answer the user's question concisely based ONLY on the plan details provided.
+        You are an expert broadband plan recommender.
+        A user has indicated their primary internet usage is: "${optionText}".
+        
+        Here is a list of available plans: ${plansString}.
+
+        Based on the user's usage, analyze the plans and recommend the single best one.
+        Respond in a friendly, personalized, and conversational tone. Start by acknowledging their choice. 
+        Explain *why* the recommended plan is a good fit for their usage (e.g., "For streaming and gaming, you need high data and reliability, which is why the Fibernet Pro is perfect...").
+        Keep the entire response to 2-3 sentences.
       `;
 
       // 3. Call your secure backend endpoint
@@ -71,30 +74,27 @@ export function RecommendedPlan({ plan }: RecommendedPlanProps) {
       });
 
       if (!response.ok) throw new Error('API request failed');
-
       const data = await response.json();
 
-      // 4. Add the AI's response to the chat history
+      // 4. Add the AI's personalized recommendation to the chat
       const modelMessage: Message = { role: 'model', text: data.summary };
-      setMessages((prevMessages) => [...prevMessages, modelMessage]);
+      setMessages((prev) => [...prev, modelMessage]);
 
     } catch (error) {
       console.error("Chatbot error:", error);
       const errorMessage: Message = { role: 'model', text: "I'm sorry, I'm having trouble connecting right now." };
-      setMessages((prevMessages) => [...prevMessages, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // --- RENDER THE CHATBOT UI ---
   return (
-    <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+    <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mb-8">
       <h2 className="text-2xl font-bold text-center text-blue-800 mb-4">
-        Chat About Your Recommended Plan ✨
+        Find Your Perfect Plan ✨
       </h2>
       
-      {/* Chat Messages Window */}
       <div className="h-64 overflow-y-auto bg-slate-50 p-4 rounded-lg border flex flex-col space-y-4">
         {messages.map((msg, index) => (
           <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -113,24 +113,20 @@ export function RecommendedPlan({ plan }: RecommendedPlanProps) {
         <div ref={chatEndRef} />
       </div>
 
-      {/* Input Form */}
-      <form onSubmit={handleSendMessage} className="mt-4 flex items-center space-x-2">
-        <input
-          type="text"
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value)}
-          placeholder="Ask a question..."
-          className="flex-grow p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          disabled={isLoading}
-        />
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-blue-300"
-          disabled={isLoading}
-        >
-          Send
-        </button>
-      </form>
+      {/* --- UPDATED: Conditionally render option buttons --- */}
+      {!isLoading && !recommendationGiven && (
+        <div className="mt-4 flex flex-wrap justify-center gap-3">
+          {conversationSteps.initial.options.map((option) => (
+            <button
+              key={option}
+              onClick={() => handleOptionClick(option)}
+              className="bg-blue-50 text-blue-700 font-semibold px-4 py-2 rounded-lg hover:bg-blue-100"
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
