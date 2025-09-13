@@ -1,39 +1,29 @@
 import { useState } from 'react';
-
-
-interface Plan {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  dataQuota: number;
-}
+import { Plan } from '../types'; // <-- UPDATED: Import the shared Plan type
 
 interface PlanCardProps {
   plan: Plan;
   isRecommended?: boolean;
+  showAiFeature?: boolean;
 }
 
-export function PlanCard({ plan, isRecommended = false }: PlanCardProps) {
+export function PlanCard({ plan, isRecommended = false, showAiFeature = false }: PlanCardProps) {
   const [aiSummary, setAiSummary] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // This function now securely calls YOUR backend server
   const handleGenerateSummary = async () => {
     setIsGenerating(true);
     setAiSummary('');
 
     try {
-   
-      const prompt = `You are a helpful assistant. Briefly explain in a friendly tone why the '${plan.name}' broadband plan, which costs $${plan.price}/month with ${plan.dataQuota}GB of data, would be a great choice for a potential customer. Keep it to 2 sentences.`;
+      const prompt = `You are a helpful sales assistant. Briefly explain in a friendly tone why the '${plan.name}' broadband plan, which costs $${plan.price}/month with ${plan.dataQuota}GB of data, would be a great choice for a potential customer. Keep it to 2 sentences.`;
 
-    
       const response = await fetch('http://localhost:8000/api/generateSummary', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ prompt }), // Send the prompt in the request body
+        body: JSON.stringify({ prompt }),
       });
 
       if (!response.ok) {
@@ -79,18 +69,20 @@ export function PlanCard({ plan, isRecommended = false }: PlanCardProps) {
         </li>
       </ul>
       
-      <div className="border-t border-gray-200 pt-4 mt-4 text-center">
-        {aiSummary && <p className="text-sm text-gray-700 p-3 bg-slate-100 rounded-md">{aiSummary}</p>}
-        {isGenerating && <p className="text-sm text-blue-600">Generating summary...</p>}
-        {!aiSummary && !isGenerating && (
-          <button 
-            onClick={handleGenerateSummary}
-            className="text-sm font-semibold text-blue-600 hover:text-blue-800"
-          >
-            Personalize with AI ✨
-          </button>
-        )}
-      </div>
+      {showAiFeature && (
+        <div className="border-t border-gray-200 pt-4 mt-4 text-center">
+          {aiSummary && <p className="text-sm text-gray-700 p-3 bg-slate-100 rounded-md">{aiSummary}</p>}
+          {isGenerating && <p className="text-sm text-blue-600">Generating summary...</p>}
+          {!aiSummary && !isGenerating && (
+            <button 
+              onClick={handleGenerateSummary}
+              className="text-sm font-semibold text-blue-600 hover:text-blue-800"
+            >
+              Personalize with AI ✨
+            </button>
+          )}
+        </div>
+      )}
 
       <button className={`
         w-full mt-6 font-semibold py-3 rounded-lg
